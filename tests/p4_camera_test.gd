@@ -18,8 +18,9 @@ func _run() -> void:
 
 	var camera: Camera3D = world.get_node_or_null("Camera3D") as Camera3D
 	var rig: CameraRig3D = world.get_node_or_null("CameraRig3D") as CameraRig3D
-	if camera == null or rig == null:
-		_expect(false, "P4 setup exposes Camera3D and CameraRig3D")
+	var router: InputRouter = world.get_node_or_null("InputRouter") as InputRouter
+	if camera == null or rig == null or router == null:
+		_expect(false, "P4 setup exposes Camera3D, CameraRig3D, and InputRouter")
 		_finish()
 		return
 
@@ -28,10 +29,10 @@ func _run() -> void:
 	_expect(_movement_preserves_height(camera, rig), "T-04.3 WASD does not change camera Y")
 	_expect(_screen_up_is_stable_after_full_turn(camera, rig), "T-04.4 screen direction remains stable through a full azimuth turn")
 
-	_expect(await _orbit_uses_clicked_world_pivot(camera, rig), "T-05.1 drag orbits around the clicked 3D point")
+	_expect(await _orbit_uses_clicked_world_pivot(camera, rig, router), "T-05.1 drag orbits around the clicked 3D point")
 	_expect(_orbit_moves_opposite_horizontal_cursor_delta(camera, rig), "T-05.2 horizontal orbit moves opposite cursor delta")
 	_expect(_orbit_pivot_stays_fixed(camera, rig), "T-05.3 orbit pivot does not change during a gesture")
-	_expect(await _click_does_not_move_camera(camera, rig), "T-05.4 click without drag does not move camera")
+	_expect(await _click_does_not_move_camera(camera, rig, router), "T-05.4 click without drag does not move camera")
 	_expect(_orbit_does_not_go_below_ground(camera, rig), "T-05.5 orbit keeps the camera at or above Y=0")
 
 	_expect(_zoom_moves_in_and_out(camera, rig), "T-06.1 wheel zoom moves camera in both directions")
@@ -102,26 +103,26 @@ func _screen_up_is_stable_after_full_turn(camera: Camera3D, rig: CameraRig3D) ->
 			return false
 	return true
 
-func _orbit_uses_clicked_world_pivot(camera: Camera3D, rig: CameraRig3D) -> bool:
+func _orbit_uses_clicked_world_pivot(camera: Camera3D, rig: CameraRig3D, router: InputRouter) -> bool:
 	_set_azimuth(camera, 0.0, BELT_TOP)
 	var screen_position := camera.unproject_position(BELT_TOP)
-	rig.begin_orbit(screen_position)
+	router.route_world_event(_mouse_button(screen_position, true))
 	await physics_frame
 	if not rig.has_orbit_pivot or rig.orbit_pivot.distance_to(FOCUS) < 1.0:
 		return false
 	var original_distance := camera.global_position.distance_to(rig.orbit_pivot)
 	var threshold_motion := InputEventMouseMotion.new()
 	threshold_motion.position = screen_position + Vector2(rig.drag_threshold + 1.0, 0.0)
-	rig._unhandled_input(threshold_motion)
+	router.route_world_event(threshold_motion)
 	if rig.drag_state != CameraRig3D.DragState.ORBIT_DRAG:
 		return false
 	var before := camera.global_position
 	var orbit_motion := InputEventMouseMotion.new()
 	orbit_motion.position = threshold_motion.position + Vector2(20.0, 0.0)
 	orbit_motion.relative = Vector2(20.0, 0.0)
-	rig._unhandled_input(orbit_motion)
+	router.route_world_event(orbit_motion)
 	await physics_frame
-	rig.end_orbit()
+	router.route_world_event(_mouse_button(orbit_motion.position, false))
 	return not camera.global_position.is_equal_approx(before) and is_equal_approx(camera.global_position.distance_to(rig.orbit_pivot), original_distance)
 
 func _orbit_moves_opposite_horizontal_cursor_delta(camera: Camera3D, rig: CameraRig3D) -> bool:
@@ -141,13 +142,21 @@ func _orbit_pivot_stays_fixed(camera: Camera3D, rig: CameraRig3D) -> bool:
 	rig.update_orbit(Vector2(-3.0, 7.0))
 	return rig.orbit_pivot.is_equal_approx(pivot)
 
-func _click_does_not_move_camera(camera: Camera3D, rig: CameraRig3D) -> bool:
+func _click_does_not_move_camera(camera: Camera3D, rig: CameraRig3D, router: InputRouter) -> bool:
 	_set_azimuth(camera, 0.0)
 	var before := camera.global_transform
-	rig.begin_orbit(camera.unproject_position(FOCUS))
+	var screen_position := camera.unproject_position(FOCUS)
+	router.route_world_event(_mouse_button(screen_position, true))
 	await physics_frame
-	rig.end_orbit()
+	router.route_world_event(_mouse_button(screen_position, false))
 	return camera.global_transform.is_equal_approx(before)
+
+func _mouse_button(position: Vector2, pressed: bool) -> InputEventMouseButton:
+	var event := InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.position = position
+	event.pressed = pressed
+	return event
 
 func _orbit_does_not_go_below_ground(camera: Camera3D, rig: CameraRig3D) -> bool:
 	var pivot := Vector3(20.5, 0.0, 20.5)

@@ -22,19 +22,6 @@ var safe_focus_height := 0.0
 var zoom_focus_position := Vector2.ZERO
 var has_zoom_focus := false
 
-func _process(delta: float) -> void:
-	var direction := Vector2.ZERO
-	if Input.is_key_pressed(KEY_W):
-		direction.y += 1.0
-	if Input.is_key_pressed(KEY_S):
-		direction.y -= 1.0
-	if Input.is_key_pressed(KEY_D):
-		direction.x += 1.0
-	if Input.is_key_pressed(KEY_A):
-		direction.x -= 1.0
-	if not direction.is_zero_approx():
-		move_screen_relative(direction, delta)
-
 func _physics_process(_delta: float) -> void:
 	if pending_pivot_pick:
 		pending_pivot_pick = false
@@ -49,27 +36,6 @@ func _physics_process(_delta: float) -> void:
 	if drag_state == DragState.ORBIT_DRAG and not pending_orbit_delta.is_zero_approx():
 		update_orbit(pending_orbit_delta)
 		pending_orbit_delta = Vector2.ZERO
-
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_LEFT:
-			if event.pressed:
-				begin_orbit(event.position)
-			else:
-				end_orbit()
-		elif event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_UP:
-			zoom(1.0, event.position)
-		elif event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			zoom(-1.0, event.position)
-	elif event is InputEventMouseMotion:
-		if drag_state == DragState.PRESS_PENDING:
-			if press_position.distance_to(event.position) >= drag_threshold:
-				if has_orbit_pivot:
-					drag_state = DragState.ORBIT_DRAG
-				else:
-					drag_requested = true
-		elif drag_state == DragState.ORBIT_DRAG:
-			pending_orbit_delta += event.relative
 
 func move_screen_relative(direction: Vector2, delta: float) -> void:
 	if camera == null or direction.is_zero_approx():
@@ -109,6 +75,18 @@ func begin_orbit_at(pivot: Vector3) -> void:
 	drag_requested = false
 	pending_orbit_delta = Vector2.ZERO
 
+func request_orbit_drag() -> void:
+	if drag_state != DragState.PRESS_PENDING:
+		return
+	if has_orbit_pivot:
+		drag_state = DragState.ORBIT_DRAG
+	else:
+		drag_requested = true
+
+func queue_orbit_delta(mouse_delta: Vector2) -> void:
+	if drag_state == DragState.ORBIT_DRAG:
+		pending_orbit_delta += mouse_delta
+
 func update_orbit(mouse_delta: Vector2) -> void:
 	if camera == null or drag_state != DragState.ORBIT_DRAG or not has_orbit_pivot:
 		return
@@ -130,6 +108,9 @@ func end_orbit() -> void:
 	pending_pivot_pick = false
 	drag_requested = false
 	pending_orbit_delta = Vector2.ZERO
+
+func cancel_orbit() -> void:
+	end_orbit()
 
 func zoom(scroll_step: float, screen_position: Vector2) -> void:
 	if camera == null or is_zero_approx(scroll_step):
@@ -160,6 +141,9 @@ func _pick_pivot(screen_position: Vector2) -> Variant:
 		return null
 	var distance := -origin.y / direction.y
 	return origin + direction * distance if distance >= 0.0 else null
+
+func pick_world_point(screen_position: Vector2) -> Variant:
+	return _pick_pivot(screen_position)
 
 func _surface_top_at(screen_position: Vector2) -> Variant:
 	var hit: Dictionary = _raycast(screen_position)
