@@ -1,0 +1,18 @@
+# PRIVATE PROJECT DOCUMENTATION — NEVER PUSH
+**/docs/
+**/docs_reference/
+**/docs_zip/
+
+# Godot generated data
+.godot/
+.import/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# Generated test screenshots are local acceptance evidence, not source assets.
+artifacts/
