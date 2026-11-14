@@ -16,3 +16,6 @@
 
 # Generated test screenshots are local acceptance evidence, not source assets.
 artifacts/
+
+# Local reference materials — NEVER publish
+Foto_reference/
