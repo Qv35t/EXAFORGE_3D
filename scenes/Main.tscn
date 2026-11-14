@@ -1,8 +1,9 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://scripts/world_root.gd" id="1_world"]
 [ext_resource type="Script" path="res://scripts/world/construction_area.gd" id="2_construction"]
 [ext_resource type="Script" path="res://scripts/world/test_fixtures.gd" id="3_fixtures"]
+[ext_resource type="Script" path="res://scripts/camera/camera_rig_3d.gd" id="4_camera_rig"]
 
 [sub_resource type="Environment" id="Environment_p1"]
 background_mode = 1
@@ -145,3 +146,6 @@ current = true
 fov = 58.0
 near = 0.05
 far = 250.0
+
+[node name="CameraRig3D" type="Node3D" parent="."]
+script = ExtResource("4_camera_rig")
