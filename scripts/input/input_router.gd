@@ -2,6 +2,7 @@ class_name InputRouter
 extends Node
 
 signal world_click(screen_position: Vector2, world_position: Variant)
+signal modal_cancel_requested
 
 enum GestureState { IDLE, PRESS_PENDING, ORBIT_DRAG }
 
@@ -15,6 +16,7 @@ var pressed_keys: Dictionary = {}
 var enabled := true
 var ui_mouse_blocked := false
 var ui_keyboard_blocked := false
+var modal_ui_active := false
 
 func _process(delta: float) -> void:
 	if camera_rig == null or not enabled or _keyboard_is_blocked():
@@ -31,6 +33,9 @@ func _input(event: InputEvent) -> void:
 	if not enabled:
 		return
 	if event is InputEventKey:
+		if _route_modal_key(event):
+			get_viewport().set_input_as_handled()
+			return
 		if _keyboard_is_blocked():
 			pressed_keys.clear()
 			return
@@ -70,6 +75,12 @@ func set_ui_keyboard_blocked(value: bool) -> void:
 	if value:
 		pressed_keys.clear()
 
+func set_modal_ui_active(value: bool) -> void:
+	modal_ui_active = value
+	set_ui_mouse_blocked(value)
+	set_ui_keyboard_blocked(value)
+	cancel_input()
+
 func cancel_input() -> void:
 	pressed_keys.clear()
 	gesture_state = GestureState.IDLE
@@ -84,6 +95,12 @@ func _route_key(event: InputEventKey) -> bool:
 		pressed_keys[event.keycode] = true
 	else:
 		pressed_keys.erase(event.keycode)
+	return true
+
+func _route_modal_key(event: InputEventKey) -> bool:
+	if not modal_ui_active or event.echo or not event.pressed or event.keycode != KEY_ESCAPE:
+		return false
+	modal_cancel_requested.emit()
 	return true
 
 func _route_mouse_button(event: InputEventMouseButton) -> bool:
