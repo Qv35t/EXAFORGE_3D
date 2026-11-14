@@ -10,5 +10,8 @@ func contains_cell(x: int, z: int) -> bool:
 func contains_base_cell(x: int, y: int, z: int) -> bool:
 	return y == 0 and contains_cell(x, z)
 
+func contains_volume_cell(cell: Vector3i) -> bool:
+	return cell.y >= 0 and contains_cell(cell.x, cell.z)
+
 func cell_count() -> int:
 	return width * depth

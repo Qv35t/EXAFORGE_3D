@@ -1,7 +1,8 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://scripts/world_root.gd" id="1_world"]
 [ext_resource type="Script" path="res://scripts/world/construction_area.gd" id="2_construction"]
+[ext_resource type="Script" path="res://scripts/world/test_fixtures.gd" id="3_fixtures"]
 
 [sub_resource type="Environment" id="Environment_p1"]
 background_mode = 1
@@ -47,6 +48,24 @@ size = Vector3(1, 1, 1)
 [sub_resource type="BoxShape3D" id="BoxShape_reference"]
 size = Vector3(1, 1, 1)
 
+[sub_resource type="StandardMaterial3D" id="Material_test_belt"]
+albedo_color = Color(0.12, 0.74, 0.88, 1)
+metallic = 0.2
+roughness = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_test_belt"]
+material = SubResource("Material_test_belt")
+size = Vector3(1, 1, 1)
+
+[sub_resource type="StandardMaterial3D" id="Material_test_pipe"]
+albedo_color = Color(0.8, 0.3, 0.78, 1)
+metallic = 0.25
+roughness = 0.45
+
+[sub_resource type="BoxMesh" id="BoxMesh_test_pipe"]
+material = SubResource("Material_test_pipe")
+size = Vector3(1, 1, 1)
+
 [node name="WorldRoot" type="Node3D"]
 script = ExtResource("1_world")
 
@@ -83,6 +102,31 @@ shape = SubResource("BoxShape_construction")
 
 [node name="ConstructionArea" type="Node3D" parent="."]
 script = ExtResource("2_construction")
+
+[node name="TestFixtures" type="Node3D" parent="."]
+script = ExtResource("3_fixtures")
+
+[node name="TestBelt" type="Node3D" parent="TestFixtures"]
+position = Vector3(20.5, 0.5, 20.5)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="TestFixtures/TestBelt"]
+mesh = SubResource("BoxMesh_test_belt")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="TestFixtures/TestBelt"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TestFixtures/TestBelt/StaticBody3D"]
+shape = SubResource("BoxShape_reference")
+
+[node name="TestPipe" type="Node3D" parent="TestFixtures"]
+position = Vector3(22.5, 0.5, 20.5)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="TestFixtures/TestPipe"]
+mesh = SubResource("BoxMesh_test_pipe")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="TestFixtures/TestPipe"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TestFixtures/TestPipe/StaticBody3D"]
+shape = SubResource("BoxShape_reference")
 
 [node name="ReferenceVolume" type="Node3D" parent="."]
 position = Vector3(18, 0.5, 18)
