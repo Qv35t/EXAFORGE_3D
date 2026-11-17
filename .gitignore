@@ -19,3 +19,4 @@ artifacts/
 
 # Local reference materials — NEVER publish
 Foto_reference/
+**/Foto_reference/

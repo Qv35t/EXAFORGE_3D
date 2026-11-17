@@ -1,0 +1,37 @@
+{
+  "status": "P7_PIPE_OWNER_ACCEPTED",
+  "coordinate_contract": "Godot cell center (0,0,0); Blender X/Y/Z maps to Godot X/Z/-Y.",
+  "cell_size": 1.0,
+  "outer_diameter": 0.18,
+  "inner_diameter": 0.14,
+  "connection_type": "open_flanged_pipe",
+  "assets": {
+    "EXAFORGE_Pipe_Straight": {
+      "ports": {
+        "WEST": {"position": [-0.5, 0.0, 0.0], "normal": [-1.0, 0.0, 0.0]},
+        "EAST": {"position": [0.5, 0.0, 0.0], "normal": [1.0, 0.0, 0.0]}
+      }
+    },
+    "EXAFORGE_Pipe_Corner_90": {
+      "ports": {
+        "NORTH": {"position": [0.0, 0.0, -0.5], "normal": [0.0, 0.0, -1.0]},
+        "EAST": {"position": [0.5, 0.0, 0.0], "normal": [1.0, 0.0, 0.0]}
+      }
+    },
+    "EXAFORGE_Pipe_Cross": {
+      "ports": {
+        "WEST": {"position": [-0.5, 0.0, 0.0], "normal": [-1.0, 0.0, 0.0]},
+        "EAST": {"position": [0.5, 0.0, 0.0], "normal": [1.0, 0.0, 0.0]},
+        "NORTH": {"position": [0.0, 0.0, -0.5], "normal": [0.0, 0.0, -1.0]},
+        "SOUTH": {"position": [0.0, 0.0, 0.5], "normal": [0.0, 0.0, 1.0]}
+      }
+    },
+    "EXAFORGE_Pipe_T_Junction": {
+      "ports": {
+        "WEST": {"position": [-0.5, 0.0, 0.0], "normal": [-1.0, 0.0, 0.0]},
+        "EAST": {"position": [0.5, 0.0, 0.0], "normal": [1.0, 0.0, 0.0]},
+        "NORTH": {"position": [0.0, 0.0, -0.5], "normal": [0.0, 0.0, -1.0]}
+      }
+    }
+  }
+}

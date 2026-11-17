@@ -1,0 +1,38 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/validation/pipe_validation_3d.gd" id="1_script"]
+
+[sub_resource type="Environment" id="Environment_pipe"]
+background_mode = 1
+background_color = Color(0.015, 0.025, 0.045, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.42, 0.5, 0.7, 1)
+ambient_light_energy = 0.75
+tonemap_mode = 2
+tonemap_exposure = 1.1
+
+[sub_resource type="BoxMesh" id="BoxMesh_ground"]
+size = Vector3(0.08, 0.08, 0.08)
+
+[node name="PipeValidation3D" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_pipe")
+
+[node name="KeyLight" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-48, -32, 0)
+light_color = Color(0.72, 0.84, 1, 1)
+light_energy = 1.4
+shadow_enabled = true
+
+[node name="FillLight" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-40, 118, 0)
+light_color = Color(0.52, 0.7, 1, 1)
+light_energy = 0.55
+
+[node name="ValidationCamera" type="Camera3D" parent="."]
+transform = Transform3D(0.837, -0.269, 0.476, 0, 0.87, 0.492, -0.548, -0.412, 0.728, 14, 13, 18)
+current = true
+projection = 1
+size = 16.0
